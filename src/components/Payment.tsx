@@ -1,32 +1,49 @@
 import React, { useEffect, useState } from "react"
-import { Button, Dimensions, StyleSheet, useWindowDimensions, View, Text, Pressable, TouchableOpacity } from "react-native";
-import { ApplePayButton, CardField, useStripe } from "@stripe/stripe-react-native"
-import { tSObjectKeyword } from "@babel/types";
+import { StyleSheet, View, Text, TouchableOpacity, Alert, TextInput } from "react-native";
+import { CardField, useStripe } from "@stripe/stripe-react-native"
 
 const Payment = () => {
-  const [key, setKey] = useState()
+  const [key, setKey] = useState('')
   const {confirmPayment} = useStripe()
 
+  useEffect(() => {
+    fetch('http://localhost:3000/create-payment-intent', {
+      method: 'POST'
+    }).then(res => res.json()).then(res => {
+        console.log('intent', res)
+        const intent = res as {clientSecret: string}
+        setKey(intent.clientSecret)
+      })
+  }, [])
 
-  const handlePayment = () => {
-    useEffect(() => {
-      fetch('http://localhost:3000/create-payment-intent', {
-        method: 'POST'
-      }).then(res => res.json())
-        .then(res => {
-          const intent = res as {clientSecret: string}
-          setKey(intent.clientSecret)
-        })
+  const handlePayment = async () => {
+   const { error } = await confirmPayment(key, {
+      type: 'Card',
+      billingDetails: {
+        email: 'meylis.ovezov.98@gmail.com'
+      }
     })
+
+    if(error){
+      Alert.alert(error.message)
+    }else{
+      Alert.alert('Payment was succesful!')
+    }
   }
 
   return (
     <View style={styles.paymentContainer}>
       <Text style={styles.mainTitle}>Cash Coin</Text>
       <View style={styles.cardFieldContainer}>
+      <View style={styles.inputField}>
+          <TextInput placeholder="Email address" placeholderTextColor="grey" style={styles.input}/>
+        </View>
+        <View style={styles.inputField}>
+          <TextInput placeholder="Card holder's name" placeholderTextColor="grey" style={styles.input}/>
+        </View>
         <CardField
           postalCodeEnabled={false}
-          style={styles.cardField}
+          cardStyle={styles.cardField}
         />
         <TouchableOpacity onPress={handlePayment} style={styles.payButton}>
           <Text style={styles.payButtonTitle}>Pay now</Text>
@@ -38,27 +55,25 @@ const Payment = () => {
 
 const styles = StyleSheet.create({
   mainTitle: {
-    color: '#000',
+    color: '#ffba08',
     fontSize: 48,
     textAlign: 'center',
     marginTop: 50,
-    shadowColor: '#000',
+    shadowColor: '#ffba08',
     shadowOpacity: 7,
-    shadowRadius: 15,
+    shadowRadius: 30,
     fontWeight: '800',
   },
 
   paymentContainer: {
     height: "100%",
     width: "100%",
-    backgroundColor: '#ffba08',
+    backgroundColor: '#000',
     padding: 15,
   },
   cardFieldContainer: {
     display: 'flex',
-    position: 'absolute',
-    bottom: 20,
-    left: 15,
+    marginTop: 200, 
     height: "18%",
     width: "100%"
   },
@@ -66,30 +81,45 @@ const styles = StyleSheet.create({
   cardField: {
     height: 60,
     width: "100%",
-    backgroundColor: '#000',
     borderRadius: 7,
-    shadowColor: '#000',
-    shadowOpacity: 10,
-    shadowRadius: 7,
+    marginBottom: 150,
+    textColor: '#ffba08',
+    shadowColor: '#ffba08',
+    shadowOpacity: 30,
+    shadowRadius: 10,
   },
   payButton: {
-    position: 'absolute',
-    padding: 5,
+    position: 'relative',
     width: "100%",
-    borderRadius: 10,
     height: 50, 
-    bottom: 0,
-    alignSelf: 'center',
+    padding: 5,
     color: '#000',
-    backgroundColor: '#000',
+    borderRadius: 7,
+    alignSelf: 'center',
+    backgroundColor: '#ffba08',
   },
   payButtonTitle: {
     textAlign: 'center',
     marginTop: 6, 
-    color: '#ffba08',
+    color: '#000',
     fontWeight: "600",
     fontSize: 22,
+  },
+  inputField: {
+    height: 50,
+    width: '100%',
+    padding: 15,
+    borderRadius: 7,
+    borderColor: '#ffba08',
+    borderWidth: 1,
+    marginBottom: 25
+  },
+  input: {
+    color: '#ffba08',
+    fontSize: 18,
+    fontWeight: '500'
   }
+
 })
 
 export default Payment
