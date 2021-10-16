@@ -36,14 +36,25 @@ const Payment = () => {
       <Text style={styles.mainTitle}>Cash Coin</Text>
       <View style={styles.cardFieldContainer}>
       <View style={styles.inputField}>
-          <TextInput placeholder="Email address" placeholderTextColor="grey" style={styles.input}/>
+          <TextInput
+            autoCapitalize="none"
+            textContentType="emailAddress"
+            placeholder="Email address" 
+            placeholderTextColor="grey" 
+            style={styles.input}/>
         </View>
         <View style={styles.inputField}>
-          <TextInput placeholder="Card holder's name" placeholderTextColor="grey" style={styles.input}/>
+          <TextInput
+            autoCapitalize="characters"
+            textContentType="name"
+            placeholder="Card holder's name"
+            placeholderTextColor="grey"
+            style={styles.input}/>
         </View>
         <CardField
+          style={styles.cardField}
           postalCodeEnabled={false}
-          cardStyle={styles.cardField}
+          cardStyle={{textColor: '#ffba08'}}
         />
         <TouchableOpacity onPress={handlePayment} style={styles.payButton}>
           <Text style={styles.payButtonTitle}>Pay now</Text>
@@ -83,7 +94,6 @@ const styles = StyleSheet.create({
     width: "100%",
     borderRadius: 7,
     marginBottom: 150,
-    textColor: '#ffba08',
     shadowColor: '#ffba08',
     shadowOpacity: 30,
     shadowRadius: 10,
