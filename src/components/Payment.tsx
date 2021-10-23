@@ -5,14 +5,15 @@ import { CardField, useStripe } from "@stripe/stripe-react-native"
 const Payment = () => {
   const [key, setKey] = useState('')
   const {confirmPayment} = useStripe()
+  const [cardDetails, setCard] = useState({})
 
   useEffect(() => {
     fetch('http://localhost:3000/create-payment-intent', {
       method: 'POST'
     }).then(res => res.json()).then(res => {
         console.log('intent', res)
-        const intent = res as {clientSecret: string}
-        setKey(intent.clientSecret)
+        const intent = res as {paymentIntent: string}
+        setKey(intent.paymentIntent)
       })
   }, [])
 
@@ -20,7 +21,7 @@ const Payment = () => {
    const { error } = await confirmPayment(key, {
       type: 'Card',
       billingDetails: {
-        email: 'meylis.ovezov.98@gmail.com'
+        email: 'meylis.ovezov.98@gmail.com',
       }
     })
 
@@ -35,29 +36,17 @@ const Payment = () => {
     <View style={styles.paymentContainer}>
       <Text style={styles.mainTitle}>Cash Coin</Text>
       <View style={styles.cardFieldContainer}>
-      <View style={styles.inputField}>
-          <TextInput
-            autoCapitalize="none"
-            textContentType="emailAddress"
-            placeholder="Email address" 
-            placeholderTextColor="grey" 
-            style={styles.input}/>
-        </View>
-        <View style={styles.inputField}>
-          <TextInput
-            autoCapitalize="characters"
-            textContentType="name"
-            placeholder="Card holder's name"
-            placeholderTextColor="grey"
-            style={styles.input}/>
-        </View>
         <CardField
           style={styles.cardField}
           postalCodeEnabled={false}
           cardStyle={{textColor: '#ffba08'}}
+          onCardChange={(cardDetails) => {
+            console.log('card details', cardDetails); 
+            setCard(cardDetails);
+            }}
         />
         <TouchableOpacity onPress={handlePayment} style={styles.payButton}>
-          <Text style={styles.payButtonTitle}>Pay now</Text>
+          <Text style={styles.payButtonTitle} onPress={handlePayment}>Pay now</Text>
         </TouchableOpacity>
       </View>
     </View>

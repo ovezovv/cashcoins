@@ -7,9 +7,15 @@
  */
 
 import React from 'react'
-import { SafeAreaView, StatusBar, StyleSheet } from 'react-native' 
+import { StyleSheet, SafeAreaView } from 'react-native' 
 import { StripeProvider } from '@stripe/stripe-react-native'
+import {SafeAreaProvider} from 'react-native-safe-area-context'
+import { NavigationContainer } from '@react-navigation/native'
+import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import PaymentComponent from './src/components/Payment'
+import ProductComponent from './src/components/Product'
+
+const Stack = createNativeStackNavigator()
 
 const App = () => {
   return (
@@ -18,13 +24,19 @@ const App = () => {
         merchantIdentifier="merchant.identifier" // required for Apple Pay
       >
       <SafeAreaView style={styles.safeArea}>
-        <StatusBar />
-        <PaymentComponent />
+        <NavigationContainer>
+          <Stack.Navigator>
+            <Stack.Screen name="Product" component={ProductComponent} 
+              options={{ title: '', headerStyle: { backgroundColor: '#000'}}}
+            />
+            <Stack.Screen name="Payment" component={PaymentComponent} options={{ title: 'Payment Checkout', headerStyle: { backgroundColor: '#000'}}} />
+          </Stack.Navigator>
+        </NavigationContainer>
       </SafeAreaView>
     </StripeProvider>
   )
 }
-
+  
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
